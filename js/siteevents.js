@@ -25,7 +25,7 @@ async function sendEvents() {
         events = [];
         
         try {
-            const response = await fetch('http://localhost/siteevents/php/sitevents-db.php', {
+            const response = await fetch('http://localhost/siteevents/php/sitevents-api.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

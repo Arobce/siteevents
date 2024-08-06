@@ -1,6 +1,6 @@
 <?php
 // site-events-api.php
-require_once 'site-events-db.php';
+require_once __DIR__ . '\sitevents-db.php';
 
 $servername = "localhost";
 $username = "root";
@@ -33,8 +33,13 @@ if ($events === null && json_last_error() !== JSON_ERROR_NONE) {
 $user_info = [
     'REMOTE_ADDR' => $_SERVER['REMOTE_ADDR'],
     'HTTP_USER_AGENT' => $_SERVER['HTTP_USER_AGENT'],
+    'REQUEST_METHOD' => $_SERVER['REQUEST_METHOD'],
+    'REQUEST_URI' => $_SERVER['REQUEST_URI'],
+    'HTTP_REFERER' => $_SERVER['HTTP_REFERER'] ?? '',
+    'SCRIPT_NAME' => $_SERVER['SCRIPT_NAME'],
     'SERVER_NAME' => $_SERVER['SERVER_NAME'],
     'SERVER_PROTOCOL' => $_SERVER['SERVER_PROTOCOL'],
+    'QUERY_STRING' => $_SERVER['QUERY_STRING'],
     'HTTP_ACCEPT_LANGUAGE' => $_SERVER['HTTP_ACCEPT_LANGUAGE'],
 ];
 

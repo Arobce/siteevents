@@ -1,5 +1,12 @@
 <?php
 // site-events-db.php
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "sitevents_db";
+$tablename = "events";
+
 function initializeDatabase($servername, $username, $password, $dbname, $tablename) {
     // Create connection
     $conn = new mysqli($servername, $username, $password);
@@ -36,4 +43,6 @@ function initializeDatabase($servername, $username, $password, $dbname, $tablena
 
     return $conn;
 }
+
+$conn = initializeDatabase($servername, $username, $password, $dbname, $tablename);
 ?>
