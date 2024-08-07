@@ -43,24 +43,52 @@ $user_info = [
     'HTTP_ACCEPT_LANGUAGE' => $_SERVER['HTTP_ACCEPT_LANGUAGE'],
 ];
 
+// Ensure necessary columns exist
+$details_columns = array_reduce($events, function($carry, $event) {
+    foreach ($event['details'] as $key => $value) {
+        $carry[$key] = 'TEXT';
+    }
+    return $carry;
+}, []);
+
+$user_info_columns = array_reduce(array_keys($user_info), function($carry, $key) {
+    $carry[$key] = 'TEXT';
+    return $carry;
+}, []);
+
+ensureColumnsExist($conn, $tablename, $details_columns);
+ensureColumnsExist($conn, $tablename, $user_info_columns);
+
 if (is_array($events)) {
     try {
-        $stmt = $conn->prepare("INSERT INTO $tablename (type, timestamp, details, user_info) VALUES (?, ?, ?, ?)");
-        if (!$stmt) {
-            throw new Exception($conn->error);
-        }
-
         foreach ($events as $event) {
-            $type = $event['type'];
-            $timestamp = $event['timestamp'];
-            $details = json_encode($event['details']);
-            $user_info_json = json_encode($user_info);
-            $stmt->bind_param("siss", $type, $timestamp, $details, $user_info_json);
+            $columns = ['type', 'timestamp'];
+            $placeholders = ['?', '?'];
+            $values = [$event['type'], $event['timestamp']];
+
+            foreach ($event['details'] as $key => $value) {
+                $columns[] = $key;
+                $placeholders[] = '?';
+                $values[] = $value;
+            }
+
+            foreach ($user_info as $key => $value) {
+                $columns[] = $key;
+                $placeholders[] = '?';
+                $values[] = $value;
+            }
+
+            $stmt = $conn->prepare("INSERT INTO $tablename (" . implode(',', $columns) . ") VALUES (" . implode(',', $placeholders) . ")");
+            if (!$stmt) {
+                throw new Exception($conn->error);
+            }
+
+            $stmt->bind_param(str_repeat('s', count($values)), ...$values);
             if (!$stmt->execute()) {
                 throw new Exception($stmt->error);
             }
+            $stmt->close();
         }
-        $stmt->close();
         echo json_encode(['status' => 'success']);
     } catch (Exception $e) {
         http_response_code(500);
@@ -72,3 +100,4 @@ if (is_array($events)) {
 }
 
 $conn->close();
+?>
